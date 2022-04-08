@@ -6,4 +6,4 @@ Link to the game: [here](https://pedrolazera.github.io/Absurdeco/).
 
 ## More information
 
-For more information about the algorithm, you can check its Julia implementation [here](https://github.com/pedrolazera/WordleSolver)
+For more information about the algorithm, you can check its Julia implementation [here](https://github.com/pedrolazera/WordleSolver).
