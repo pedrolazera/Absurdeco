@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "module": "system",
+    "noImplicitAny": true,
+    "removeComments": true,
+    "preserveConstEnums": true,
+    "strict": true,
+    "target": "ES2015",
+    "outDir": "../js",
+  },
+
+  "files": [
+    "Layer.ts",
+    "Colors.ts",
+    "Wordle.ts",
+    "Utils.ts",
+    "Solver.ts",
+    "Solver4.ts",
+    "GameManager.ts",
+    "Tabuleiro.ts",
+    "Header.ts",
+    "Teclado.ts"
+  ],
+}

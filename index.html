@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Absurdeco</title>
+	<link rel="stylesheet" href="./css/main.css">
+
+	<script src="./js/Teclado.js"></script>
+	<script src="./js/Tabuleiro.js"></script>
+	<script src="./js/GameManager.js"></script>
+	<script src="./js/Header.js"></script>
+
+	<script src="./js/Utils.js"></script>
+	<script src="./js/Colors.js"></script>
+	<script src="./js/Layer.js"></script>
+	<script src="./js/Solver.js"></script>
+	<script src="./js/Solver4.js"></script>
+	<script src="./js/Wordle.js"></script>
+</head>
+
+<body>
+	<div id="container">
+
+		<div id="modal" class="modal">
+		 <!-- Modal content -->
+			<div class="modal-content">
+				<div class="modal-header">
+					<span class="modal-title"> O que é o Absurdeco? </span>
+					<span class="close-modal" id="close-modal"> &times; </span>
+				</div>
+				<div class="modal-body">
+					<p>Absurdeco é a versão cruel, em português, do jogo <strong>Wordle</strong>. É totalmente inspirado no <strong>Absurdle</strong>.</p>
+
+					<span class="modal-subtitle">>> Regras</span>
+					<p>Adivinhe a palavra em <u>6 palpites</u>, com ajuda das cores.</p>
+					<p><span class="p-green">&nbsp Verde &nbsp</span> &#8594 a letra existe na palavra, nesse lugar mesmo</p>
+					<p><span class="p-yellow">&nbsp Amarelo &nbsp</span> &#8594 a letra existe na palavra, mas em outro lugar</p>
+					<p><span class="p-red">&nbsp Vermelho &nbsp</span> &#8594 a letra existe não existe na palavra</p>
+					<p>O palpite deve ser uma <u>palavra de 5 letras que existe na língua portuguesa</u></p>
+
+					<span class="modal-subtitle">>> Crueldade</span>
+					<p>O Absurdeco colore seu palpite com o objetivo de dificultar ao máximo sua vida. A cada palpite seu, ele pode mudar a palavra escondida, de forma a maximizar o conjunto de palavras que ainda podem ser a palavra escondida.</p>
+
+					<span class="modal-subtitle">>> Links e reconhecimentos</span>
+					<p>Jogo original: <a href="https://www.nytimes.com/games/wordle/"> Wordle </a> </p>
+					<p>Algumas outras versões:
+						<a href="https://qntm.org/files/absurdle/absurdle.html">Absurdle</a> ||
+						<a href="https://term.ooo/">Termo</a> ||
+						<a href="https://www.gabtoschi.com/letreco/">Letreco</a>
+					</p>
+					<p> Lista de palavras: <a href="https://github.com/fserb/pt-br"> pt-br </a> </p>
+
+					<span class="modal-subtitle">>> Criador</span>
+					<p> Pedro Lazéra Cardoso <a href="mailto:pedrolazera@hotmail.com">e-mail</a></p>
+				</div>
+			</div>
+		</div>
+
+		<div id="header">
+			<div id="header-left">?</div>
+			<div id="title">Absurdeco</div>
+			<div id="more-info-btn">?</div>
+		</div>
+
+		<div id="alerta-palavra-errada"> A palavra não existe... </div>
+
+		<div id="tabuleiro"></div>
+
+		<div id="qtd-sobreviventes-container">
+			<span>Restam:</span>
+			<span id="qtd-sobreviventes"></span>
+		</div>
+
+		<div id="teclado">
+			<div class="linha-teclado" id="teclado-linha-1"></div>
+			<div class="linha-teclado" id="teclado-linha-2"></div>
+			<div class="linha-teclado" id="teclado-linha-3"></div>
+			<!-- &#9003 , &#9166 -->
+		</div>
+
+		<div id="lista-sobreviventes"></div>
+	</div>
+
+
+	<script>
+	 	"use strict"
+
+	 	let limite_palpites = 6;
+	 	let tam_palavra = 5;
+	 	let max_depth = 6;
+	 	let branch_size = 150;
+
+	 	const _ALL_GREEN = 242;
+	 	var W2 = create_wordle_PT();
+	 	var rodada = 0;
+	 	var solver = create_solver4(max_depth, W2, branch_size);
+	 	var M = cria_manager(tam_palavra, limite_palpites);
+	 	var WORD_TO_ID = new Object();
+	 	for(let k = 0; k < W2.lexicon_size; k++) {
+	 		WORD_TO_ID[W2.lexicon[k]] = k;
+	 	}
+
+	 	fetch("https://pedlc.pythonanywhere.com/incr_visitors/");
+
+	 	// nodes globais
+	 	var node_qtd_sobreviventes = document.getElementById("qtd-sobreviventes");
+	 	var node_alerta_palavra_errada = document.getElementById("alerta-palavra-errada");
+	 	var node_lista_sobreviventes = document.getElementById("lista-sobreviventes");
+
+	 	// Preenche teclado
+	 	preenhce_linha_teclado("teclado-linha-1", "qwertyuiop")
+	 	preenhce_linha_teclado("teclado-linha-2", "asdfghjkl")
+	 	preenhce_linha_teclado("teclado-linha-3", "zxcvbnm")
+
+	 	//// adiciona listener no teclado virtual (ainda sem enter e backspace)
+	 	var node_teclas = document.getElementsByClassName("tecla-virtual");
+	 	for(let n of node_teclas) {
+			n.addEventListener("click",() => escreve_letra(M, n.textContent))
+		}
+
+	 	// Cria tabuleiro virtual (ainda sem enter e backspace)
+	 	let id_node_tabuleiro = "tabuleiro"
+	 	cria_tabuleiro(tam_palavra, limite_palpites, id_node_tabuleiro);
+	 	pendura_tabuleiro_no_gerenciador(M, id_node_tabuleiro);
+
+	 	// Preenche quantidade de sobreviventes
+	 	function update_qtd_sobreviventes(qtd) {
+	 		node_qtd_sobreviventes.textContent = qtd.toLocaleString();
+	 	}
+		
+		update_qtd_sobreviventes(W2.layers[rodada].len);
+
+		// Algumas utilidades
+		function set_novo_gabarito(solver, W2, i, rodada) {
+			solver.min_depth = rodada;
+			let S = W2.layers[rodada];
+			let Sj = W2.layers[rodada+1];
+
+			create_partition(S, Sj, W2.colors, i);
+
+			_g_max4(solver, W2, 0, 1000, rodada);
+		}
+
+		function cor_to_vetor(n) {
+			let v = new Array(M.tam_palavra)
+
+			for(let i = v.length-1; i >= 0; i--) {
+				v[i] = n%3
+				n = Math.floor(n/3)
+			}
+
+			return v;
+		}
+
+		// press enter... isso aqui é guerra!!!
+		function press_enter() {
+			let palpite = get_palavra_ativa(M);
+			if (palpite.length > 0) {
+				if (WORD_TO_ID.hasOwnProperty(palpite)) {
+					let i_palpite = WORD_TO_ID[palpite]
+
+					// muda o gabarito, na maldade
+					solver.color = -1;
+					set_novo_gabarito(solver, W2, i_palpite, rodada);
+					let cor = (solver.color == -1 ? _ALL_GREEN : solver.color);
+
+					// colore chute do usuário
+					let cores = cor_to_vetor(cor);
+					for(let k = 0; k < M.tam_palavra; k++) {
+						if(cores[k] == _GREEN) {
+							M.camada_ativa.nodes[k].classList.add("verde")
+						} else if(cores[k] == _YELLOW) {
+							M.camada_ativa.nodes[k].classList.add("amarelo")
+						} else { // vermelho
+							M.camada_ativa.nodes[k].classList.add("vermelho")
+						}
+					}
+
+					rodada += 1;
+
+					if(cor != _ALL_GREEN) {
+						avanca_uma_camada(M);
+						update_layer(W2.layers[rodada], cor);
+						update_qtd_sobreviventes(W2.layers[rodada].len);
+					} else {
+						update_qtd_sobreviventes(0);
+						M.estado = _ESTADO_MANAGER_OFF;
+						W2.layers[rodada].head = -1; // horroroso!!!
+					}
+
+					
+
+					// exibe lista de palavras que sobreviveram
+					if(M.estado == _ESTADO_MANAGER_OFF) {
+						let _js = _layer_vectorize(W2.layers[rodada]);
+						//console.log(_js);
+						let _v = new Array()
+						for(let _j of _js) {
+							let i = W2.map_j_to_i[_j];
+							_v.push(W2.lexicon[i])
+						}
+
+						let s = _v.join(", ")
+
+						node_lista_sobreviventes.textContent = s;
+					}
+					
+					// colore teclas
+					colore_teclas(node_teclas, palpite, cores);
+
+				} else {
+					node_alerta_palavra_errada.classList.add("show");
+					setTimeout( () => node_alerta_palavra_errada.classList.remove("show"), 800);
+				}
+			}
+		}
+
+		// Ativa teclado físico
+		ativa_teclado_fisico(M, W2, escreve_letra, apaga_letra, press_enter)
+
+		// Insere backspace e enter
+		// &#9003 , &#9166
+		let nodes_linha_3 = document.getElementById("teclado-linha-3")
+		add_back_space_and_enter(nodes_linha_3, () => apaga_letra(M), press_enter)
+
+		// adiciona boteos do cabecalho
+		adiciona_on_clicks_no_cabecalho(document.getElementById("modal"),
+										document.getElementById("more-info-btn"),
+										document.getElementById("close-modal"))
+
+
+	 </script>
+</body>
+
+</html>

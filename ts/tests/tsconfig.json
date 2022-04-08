@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "module": "system",
+    "noImplicitAny": true,
+    "removeComments": true,
+    "preserveConstEnums": true,
+    "strict": true,
+    "target": "ES2015",
+    "outFile": "../../js/test/tests.js"
+  },
+
+  "files": [
+    "..\\Layer.ts",
+    "..\\Colors.ts",
+    "..\\Wordle.ts",
+    "..\\Utils.ts",
+    "..\\Solver.ts",
+    "..\\Solver4.ts",
+    "test_layer.ts",
+    "test_color",
+    "test_wordle.ts",
+    "test_solver.ts",
+    "run_tests.ts",
+  ],
+}
