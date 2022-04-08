@@ -2,7 +2,7 @@
 
 An adversarial Wordle game. The Artificial Intelligence is a minimax search enhanced with alpha-beta pruning. Have fun!
 
-Link to game: [here](https://pedrolazera.github.io/Absurdeco/)
+Link to the game: [here](https://pedrolazera.github.io/Absurdeco/).
 
 ## More information
 
