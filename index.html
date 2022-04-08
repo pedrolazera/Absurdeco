@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-br" content>
 
 <head>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>Absurdeco</title>
+	
 	<link rel="stylesheet" href="./css/main.css">
 
 	<script src="./js/Teclado.js"></script>
@@ -104,7 +105,8 @@
 	 		WORD_TO_ID[W2.lexicon[k]] = k;
 	 	}
 
-	 	fetch("https://pedlc.pythonanywhere.com/incr_visitors/");
+	 	fetch("https://pedlc.pythonanywhere.com/incr_visitors/",
+	 		{ mode: 'no-cors' });
 
 	 	// nodes globais
 	 	var node_qtd_sobreviventes = document.getElementById("qtd-sobreviventes");
@@ -122,7 +124,7 @@
 			n.addEventListener("click",() => escreve_letra(M, n.textContent))
 		}
 
-	 	// Cria tabuleiro virtual (ainda sem enter e backspace)
+	 	// Cria tabuleiro virtual
 	 	let id_node_tabuleiro = "tabuleiro"
 	 	cria_tabuleiro(tam_palavra, limite_palpites, id_node_tabuleiro);
 	 	pendura_tabuleiro_no_gerenciador(M, id_node_tabuleiro);
@@ -159,7 +161,7 @@
 		// press enter... isso aqui é guerra!!!
 		function press_enter() {
 			let palpite = get_palavra_ativa(M);
-			if (palpite.length > 0) {
+			if ((palpite.length > 0) && (M.estado != _ESTADO_MANAGER_OFF)) {
 				if (WORD_TO_ID.hasOwnProperty(palpite)) {
 					let i_palpite = WORD_TO_ID[palpite]
 
@@ -192,7 +194,7 @@
 						W2.layers[rodada].head = -1; // horroroso!!!
 					}
 
-					
+					//atualiza_tabuleiro(rodada);
 
 					// exibe lista de palavras que sobreviveram
 					if(M.estado == _ESTADO_MANAGER_OFF) {

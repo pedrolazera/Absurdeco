@@ -90,9 +90,9 @@ function avanca_uma_camada(manager: T_Manager): boolean {
     if (manager.qtd_palpites_usados < manager.limite_palpites) {
         manager.camada_ativa = manager.camadas[manager.qtd_palpites_usados];
         manager.nodes_linhas[manager.qtd_palpites_usados].classList.add("linha-ativa");
+        manager.nodes_linhas[manager.qtd_palpites_usados].classList.remove("invisible");
         return true;
-    }
-    else {
+    } else {
         manager.estado = _ESTADO_MANAGER_OFF;
         return false;
     }

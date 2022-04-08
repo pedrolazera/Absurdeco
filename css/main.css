@@ -148,6 +148,10 @@ body {
 	color: black;
 }
 
+.invisible.linha-tabuleiro {
+    display: none;
+}
+
 /******************************
 ************ TECLADO **********
 *******************************/

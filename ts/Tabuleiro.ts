@@ -6,14 +6,18 @@ function cria_tabuleiro(tam_palavra: number, limite_palpites: number,
 	console.assert(node_tabuleiro != null)
 
 	for(let i=0; i < limite_palpites; i++) {
-		adiciona_linha_tabuleiro(node_tabuleiro, tam_palavra)
+		adiciona_linha_tabuleiro(node_tabuleiro, tam_palavra, i>=4)
 	}
 }
 
 function adiciona_linha_tabuleiro(parent_node: any,
-	tam_palavra: number): void {
+	tam_palavra: number, add_invisible_class: boolean): void {
 	let node_linha = document.createElement("div")
 	node_linha.classList.add("linha-tabuleiro")
+	
+	if(add_invisible_class) {
+		node_linha.classList.add("invisible");
+	}
 
 	for(let i=0; i < tam_palavra; i++) {
 		adiciona_node_letra(node_linha)

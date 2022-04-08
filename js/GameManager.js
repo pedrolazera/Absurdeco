@@ -56,6 +56,7 @@ function avanca_uma_camada(manager) {
     if (manager.qtd_palpites_usados < manager.limite_palpites) {
         manager.camada_ativa = manager.camadas[manager.qtd_palpites_usados];
         manager.nodes_linhas[manager.qtd_palpites_usados].classList.add("linha-ativa");
+        manager.nodes_linhas[manager.qtd_palpites_usados].classList.remove("invisible");
         return true;
     }
     else {
