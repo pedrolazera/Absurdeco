@@ -19,6 +19,7 @@
     "GameManager.ts",
     "Tabuleiro.ts",
     "Header.ts",
-    "Teclado.ts"
+    "Teclado.ts",
+    "Difficult_Ids.ts"
   ],
 }

@@ -19,6 +19,7 @@
 	<script src="./js/Solver.js"></script>
 	<script src="./js/Solver4.js"></script>
 	<script src="./js/Wordle.js"></script>
+	<script src="./js/Difficult_Ids.js"></script>
 </head>
 
 <body>
@@ -96,13 +97,14 @@
 	 	let branch_size = 150;
 
 	 	const _ALL_GREEN = 242;
-	 	var W2 = create_wordle_PT();
+	 	var W = create_wordle_PT();
 	 	var rodada = 0;
-	 	var solver = create_solver4(max_depth, W2, branch_size);
+	 	var solver = create_solver4(max_depth, W, branch_size);
+	 	var solver_fast = create_solver4(1, W, branch_size);
 	 	var M = cria_manager(tam_palavra, limite_palpites);
 	 	var WORD_TO_ID = new Object();
-	 	for(let k = 0; k < W2.lexicon_size; k++) {
-	 		WORD_TO_ID[W2.lexicon[k]] = k;
+	 	for(let k = 0; k < W.lexicon_size; k++) {
+	 		WORD_TO_ID[W.lexicon[k]] = k;
 	 	}
 
 	 	fetch("https://pedlc.pythonanywhere.com/incr_visitors/",
@@ -134,17 +136,26 @@
 	 		node_qtd_sobreviventes.textContent = qtd.toLocaleString();
 	 	}
 		
-		update_qtd_sobreviventes(W2.layers[rodada].len);
+		update_qtd_sobreviventes(W.layers[rodada].len);
 
 		// Algumas utilidades
-		function set_novo_gabarito(solver, W2, i, rodada) {
+		function set_novo_gabarito(solver, W, i, rodada) {
+			let alpha = 0, beta = 1000;
+			let S = W.layers[rodada];
+			let Sj = W.layers[rodada+1];
+			create_partition(S, Sj, W.colors, i);
 			solver.min_depth = rodada;
-			let S = W2.layers[rodada];
-			let Sj = W2.layers[rodada+1];
 
-			create_partition(S, Sj, W2.colors, i);
-
-			_g_max4(solver, W2, 0, 1000, rodada);
+			if(rodada>0) {
+				_g_max4(solver, W, alpha, beta, rodada);
+			} else if(_DIFFICULT_IDS.hasOwnProperty(i)) {
+				solver.color = _DIFFICULT_IDS[i];
+			}
+			else {
+				_g_max4(solver_fast, W, alpha, beta, 0);
+				solver.color = solver_fast.color;
+			}
+			
 		}
 
 		function cor_to_vetor(n) {
@@ -167,7 +178,7 @@
 
 					// muda o gabarito, na maldade
 					solver.color = -1;
-					set_novo_gabarito(solver, W2, i_palpite, rodada);
+					set_novo_gabarito(solver, W, i_palpite, rodada);
 					let cor = (solver.color == -1 ? _ALL_GREEN : solver.color);
 
 					// colore chute do usuário
@@ -186,24 +197,22 @@
 
 					if(cor != _ALL_GREEN) {
 						avanca_uma_camada(M);
-						update_layer(W2.layers[rodada], cor);
-						update_qtd_sobreviventes(W2.layers[rodada].len);
+						update_layer(W.layers[rodada], cor);
+						update_qtd_sobreviventes(W.layers[rodada].len);
 					} else {
 						update_qtd_sobreviventes(0);
 						M.estado = _ESTADO_MANAGER_OFF;
-						W2.layers[rodada].head = -1; // horroroso!!!
+						W.layers[rodada].head = -1; // horroroso!!!
 					}
-
-					//atualiza_tabuleiro(rodada);
 
 					// exibe lista de palavras que sobreviveram
 					if(M.estado == _ESTADO_MANAGER_OFF) {
-						let _js = _layer_vectorize(W2.layers[rodada]);
+						let _js = _layer_vectorize(W.layers[rodada]);
 						//console.log(_js);
 						let _v = new Array()
 						for(let _j of _js) {
-							let i = W2.map_j_to_i[_j];
-							_v.push(W2.lexicon[i])
+							let i = W.map_j_to_i[_j];
+							_v.push(W.lexicon[i])
 						}
 
 						let s = _v.join(", ")
@@ -222,7 +231,7 @@
 		}
 
 		// Ativa teclado físico
-		ativa_teclado_fisico(M, W2, escreve_letra, apaga_letra, press_enter)
+		ativa_teclado_fisico(M, W, escreve_letra, apaga_letra, press_enter)
 
 		// Insere backspace e enter
 		// &#9003 , &#9166
