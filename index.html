@@ -6,20 +6,20 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>Absurdeco</title>
 	
-	<link rel="stylesheet" href="./css/main.css">
+	<link rel="stylesheet" type="text/css" href="./css/main.css">
 
-	<script src="./js/Teclado.js"></script>
-	<script src="./js/Tabuleiro.js"></script>
-	<script src="./js/GameManager.js"></script>
-	<script src="./js/Header.js"></script>
+	<script type="text/javascript" src="./js/Teclado.js"></script>
+	<script type="text/javascript" src="./js/Tabuleiro.js"></script>
+	<script type="text/javascript" src="./js/GameManager.js"></script>
+	<script type="text/javascript" src="./js/Header.js"></script>
 
-	<script src="./js/Utils.js"></script>
-	<script src="./js/Colors.js"></script>
-	<script src="./js/Layer.js"></script>
-	<script src="./js/Solver.js"></script>
-	<script src="./js/Solver4.js"></script>
-	<script src="./js/Wordle.js"></script>
-	<script src="./js/Difficult_Ids.js"></script>
+	<script type="text/javascript" src="./js/Utils.js"></script>
+	<script type="text/javascript" src="./js/Colors.js"></script>
+	<script type="text/javascript" src="./js/Layer.js"></script>
+	<script type="text/javascript" src="./js/Solver.js"></script>
+	<script type="text/javascript" src="./js/Solver4.js"></script>
+	<script type="text/javascript" src="./js/Wordle.js"></script>
+	<script type="text/javascript" src="./js/Difficult_Ids.js"></script>
 </head>
 
 <body>
@@ -108,7 +108,7 @@
 	 	}
 
 	 	fetch("https://pedlc.pythonanywhere.com/incr_visitors/",
-	 		{ mode: 'no-cors' });
+	 		{ mode: "no-cors", cache: "no-store" });
 
 	 	// nodes globais
 	 	var node_qtd_sobreviventes = document.getElementById("qtd-sobreviventes");
